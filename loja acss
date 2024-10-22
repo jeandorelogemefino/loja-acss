@@ -1,0 +1,117 @@
+create database lojaacss; 
+
+use lojaacss;
+
+create table clientes
+ (
+    id_cliente int auto_increment primary key,  -- Chave primária
+    nome varchar(100),
+    email varchar(100) unique,
+    telefone varchar(20),
+    endereco varchar(255),
+    cidade varchar(50),
+    estado varchar(50),
+    cep varchar(10),
+    data_criacao timestamp default current_timestamp
+);
+
+CREATE TABLE produtos (
+    id_produto INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    nome VARCHAR(100),
+    descricao TEXT,
+    preco DECIMAL(10, 2),
+    quantidade_em_estoque INT,
+    categoria VARCHAR(50),
+    data_adicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categorias (
+    id_categoria INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    nome VARCHAR(50) UNIQUE
+);
+
+CREATE TABLE pedidos (
+    id_pedido INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    id_cliente INT,
+    data_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total DECIMAL(10, 2),
+    status VARCHAR(50),
+    id_cupom INT NULL,  -- Relacionamento com cupons
+    desconto_cupom DECIMAL(10, 2) DEFAULT 0,
+    pontos_usados INT DEFAULT 0,
+    desconto_pontos DECIMAL(10, 2) DEFAULT 0,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),  -- Chave estrangeira
+    FOREIGN KEY (id_cupom) REFERENCES cupons(id_cupom)  -- Chave estrangeira
+);
+
+CREATE TABLE fornecedores (
+    id_fornecedor INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    nome VARCHAR(100),
+    telefone VARCHAR(20),
+    email VARCHAR(100),
+    endereco VARCHAR(255),
+    cidade VARCHAR(50),
+    estado VARCHAR(50),
+    cep VARCHAR(10),
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE estoque (
+    id_estoque INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    id_produto INT,
+    id_fornecedor INT,
+    quantidade INT,
+    data_entrada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_produto) REFERENCES produtos(id_produto),  -- Chave estrangeira
+    FOREIGN KEY (id_fornecedor) REFERENCES fornecedores(id_fornecedor)  -- Chave estrangeira
+);
+
+CREATE TABLE pagamentos (
+    id_pagamento INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    id_pedido INT,
+    metodo_pagamento VARCHAR(50),
+    valor_pago DECIMAL(10, 2),
+    data_pagamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)  -- Chave estrangeira
+);
+
+CREATE TABLE cupons (
+    id_cupom INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    codigo VARCHAR(50) UNIQUE,
+    descricao VARCHAR(255),
+    valor_desconto DECIMAL(10, 2),
+    percentual_desconto DECIMAL(5, 2),
+    valor_minimo DECIMAL(10, 2),
+    data_expiracao DATE,
+    quantidade_disponivel INT,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE descontos_produtos (
+    id_desconto INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    id_produto INT,
+    valor_desconto DECIMAL(10, 2),
+    percentual_desconto DECIMAL(5, 2),
+    data_inicio DATE,
+    data_fim DATE,
+    FOREIGN KEY (id_produto) REFERENCES produtos(id_produto)  -- Chave estrangeira
+);
+
+CREATE TABLE pontos_fidelidade (
+    id_pontos INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    id_cliente INT,
+    saldo_pontos INT,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)  -- Chave estrangeira
+);
+
+CREATE TABLE historico_pontos (
+    id_historico INT AUTO_INCREMENT PRIMARY KEY,  -- Chave primária
+    id_cliente INT,
+    pontos_ganhos INT,
+    pontos_usados INT,
+    data_transacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_pedido INT,
+    descricao VARCHAR(255),
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),  -- Chave estrangeira
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)  -- Chave estrangeira
+);
